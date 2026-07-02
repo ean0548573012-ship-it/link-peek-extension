@@ -1,7 +1,5 @@
-let previewWindow = null;
-let lastUrl = null;
+let previewBox = null;
 
-// פונקציה שמזהה האם הקישור הוא קובץ להורדה
 function isDownloadLink(url, link) {
     if (link.hasAttribute('download')) return true;
     const downloadExtensions = /\.(zip|rar|7z|exe|msi|apk|pdf|doc|docx|xls|xlsx|mp3|mp4|avi|mkv)(\?.*)?$/i;
@@ -13,75 +11,102 @@ function isDownloadLink(url, link) {
     return false;
 }
 
-// מאזין לריחופים של העכבר
 document.addEventListener('mouseover', function(e) {
     if (e.target.closest('a') && e.shiftKey) {
         const link = e.target.closest('a');
         let url = link.href;
         
         if (!url.startsWith('http')) return;
-        if (url === lastUrl) return; // מונע פתיחה כפולה של אותו קישור
 
-        // הפניה מוויקיפדיה למכלול
         if (url.includes('wikipedia.org/wiki/')) {
             url = url.replace(/https?:\/\/([a-z0-9\-]+)\.wikipedia\.org\/wiki\//i, 'https://www.hamichlol.org.il/');
         }
 
-        // אם מדובר בקובץ להורדה, לא נפתח חלון צף (כדי למנוע הורדה אוטומטית)
-        if (isDownloadLink(url, link)) return;
-
-        // אם כבר יש חלון פתוח, נסגור אותו קודם
-        if (previewWindow && !previewWindow.closed) {
-            previewWindow.close();
+        if (previewBox) {
+            previewBox.remove();
         }
 
-        lastUrl = url;
+        // יצירת חלונית תצוגה מקדימה רחבה ויציבה לגלילה אנכית
+        previewBox = document.createElement('div');
+        previewBox.style.position = 'fixed';
+        previewBox.style.bottom = '30px';
+        previewBox.style.left = '30px'; 
+        previewBox.style.width = '550px';  // רוחב אופטימלי שמונע גלילה לצדדים
+        previewBox.style.height = '500px'; 
+        previewBox.style.border = '1px solid #ccc';
+        previewBox.style.borderRadius = '10px';
+        previewBox.style.boxShadow = '0 10px 25px rgba(0,0,0,0.3)';
+        previewBox.style.backgroundColor = '#fff';
+        previewBox.style.zIndex = '999999';
+        previewBox.style.overflow = 'hidden'; // מונע כפילויות פסי גלילה
+        previewBox.style.overscrollBehavior = 'contain'; 
 
-        // הגדרת מיקום וגודל לחלון הצף (בפינה השמאלית התחתונה של המסך)
-        const width = 600;
-        const height = 500;
-        const left = 50;
-        const top = window.screen.height - height - 100;
+        if (isDownloadLink(url, link)) {
+            const downloadContainer = document.createElement('div');
+            downloadContainer.style.display = 'flex';
+            downloadContainer.style.flexDirection = 'column';
+            downloadContainer.style.alignItems = 'center';
+            downloadContainer.style.justifyContent = 'center';
+            downloadContainer.style.height = '100%';
+            downloadContainer.style.fontFamily = 'Arial, sans-serif';
+            downloadContainer.style.padding = '20px';
+            downloadContainer.style.textAlign = 'center';
 
-        // פתיחת חלון דפדפן צף עצמאי ונקי ללא סרגלי כלים
-        previewWindow = window.open(
-            url, 
-            'LinkPeekWindow', 
-            `width=${width},height=${height},left=${left},top=${top},menubar=no,toolbar=no,location=no,status=no`
-        );
+            const infoText = document.createElement('p');
+            infoText.textContent = 'זהו קישור להורדת קובץ. ההורדה האוטומטית נחסמה בחלון התצוגה המקדימה.';
+            infoText.style.marginBottom = '20px';
+            infoText.style.color = '#333';
+            infoText.style.fontSize = '16px';
+            infoText.dir = 'rtl';
+
+            const downloadBtn = document.createElement('a');
+            downloadBtn.href = url;
+            downloadBtn.textContent = 'לחץ כאן להורדת הקובץ';
+            downloadBtn.setAttribute('download', '');
+            downloadBtn.style.padding = '12px 24px';
+            downloadBtn.style.backgroundColor = '#007bff';
+            downloadBtn.style.color = '#fff';
+            downloadBtn.style.textDecoration = 'none';
+            downloadBtn.style.borderRadius = '6px';
+            downloadBtn.style.fontWeight = 'bold';
+            downloadBtn.style.fontSize = '16px';
+
+            downloadContainer.appendChild(infoText);
+            downloadContainer.appendChild(downloadBtn);
+            previewBox.appendChild(downloadContainer);
+        } else {
+            const iframe = document.createElement('iframe');
+            iframe.src = url;
+            iframe.style.width = '100%';
+            iframe.style.height = '100%';
+            iframe.style.border = 'none';
+            iframe.style.backgroundColor = '#ffffff';
+            
+            previewBox.appendChild(iframe);
+        }
+
+        document.body.appendChild(previewBox);
     }
 });
 
-// מאזין לעזיבת הקישור עם העכבר
 document.addEventListener('mouseout', function(e) {
-    if (e.target.closest('a')) {
-        // אם המשתמש עדיין מחזיק את מקש Shift, נשאיר את החלון פתוח כדי שיוכל לגלול בו
+    if (e.target.closest('a') && previewBox) {
         if (e.shiftKey) return; 
-        
-        if (previewWindow && !previewWindow.closed) {
-            previewWindow.close();
-            previewWindow = null;
-            lastUrl = null;
-        }
+        previewBox.remove();
+        previewBox = null;
     }
 });
 
-// סגירת החלון הצף מיד ברגע שעוזבים את מקש ה-Shift
 document.addEventListener('keyup', function(e) {
-    if (e.key === 'Shift') {
-        if (previewWindow && !previewWindow.closed) {
-            previewWindow.close();
-            previewWindow = null;
-            lastUrl = null;
-        }
+    if (e.key === 'Shift' && previewBox) {
+        previewBox.remove();
+        previewBox = null;
     }
 });
 
-// ליתר ביטחון, אם המשתמש לוחץ קליק בעמוד הראשי - נסגור את החלון הצף
-document.addEventListener('mousedown', function() {
-    if (previewWindow && !previewWindow.closed) {
-        previewWindow.close();
-        previewWindow = null;
-        lastUrl = null;
+document.addEventListener('mousedown', function(e) {
+    if (previewBox && !previewBox.contains(e.target)) {
+        previewBox.remove();
+        previewBox = null;
     }
 });
