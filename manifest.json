@@ -2,7 +2,6 @@
   "manifest_version": 3,
   "name": "תצוגה מקדימה לקישורים - Link Peek",
   "version": "1.0",
-  "description": "החזק את מקש Shift ורחף עם העכבר מעל קישורים כדי לראות תצוגה מקדימה שלהם מבלי לפתוח כרטיסייה חדשה.",
   "permissions": [
     "declarativeNetRequest"
   ],
