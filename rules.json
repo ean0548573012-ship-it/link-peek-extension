@@ -8,10 +8,14 @@
         { "header": "x-frame-options", "operation": "remove" },
         { "header": "content-security-policy", "operation": "remove" },
         { "header": "x-content-security-policy", "operation": "remove" },
-        { "header": "frame-options", "operation": "remove" },
-        { "header": "cross-origin-opener-policy", "operation": "remove" },
-        { "header": "cross-origin-embedder-policy", "operation": "remove" },
-        { "header": "cross-origin-resource-policy", "operation": "remove" }
+        { "header": "frame-options", "operation": "remove" }
+      ],
+      "requestHeaders": [
+        { "header": "referer", "operation": "remove" },
+        { "header": "origin", "operation": "remove" },
+        { "header": "user-agent", "operation": "set", "value": "Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6 Mobile/15E148 Safari/604.1" },
+        { "header": "sec-ch-ua-mobile", "operation": "set", "value": "?1" },
+        { "header": "sec-ch-ua-platform", "operation": "set", "value": "\"iOS\"" }
       ]
     },
     "condition": {
