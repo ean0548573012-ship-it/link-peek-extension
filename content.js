@@ -26,19 +26,19 @@ document.addEventListener('mouseover', function(e) {
             previewBox.remove();
         }
 
-        // יצירת חלונית תצוגה מקדימה רחבה ויציבה לגלילה אנכית
+        // יצירת חלונית תצוגה מקדימה במידות של מסך טלפון נייד
         previewBox = document.createElement('div');
         previewBox.style.position = 'fixed';
         previewBox.style.bottom = '30px';
         previewBox.style.left = '30px'; 
-        previewBox.style.width = '550px';  // רוחב אופטימלי שמונע גלילה לצדדים
-        previewBox.style.height = '500px'; 
+        previewBox.style.width = '430px';  // רוחב מושלם למובייל שמונע גלילה לרוחב
+        previewBox.style.height = '620px'; // גובה מותאם לקריאה נוחה
         previewBox.style.border = '1px solid #ccc';
-        previewBox.style.borderRadius = '10px';
-        previewBox.style.boxShadow = '0 10px 25px rgba(0,0,0,0.3)';
+        previewBox.style.borderRadius = '14px';
+        previewBox.style.boxShadow = '0 12px 35px rgba(0,0,0,0.3)';
         previewBox.style.backgroundColor = '#fff';
         previewBox.style.zIndex = '999999';
-        previewBox.style.overflow = 'hidden'; // מונע כפילויות פסי גלילה
+        previewBox.style.overflow = 'hidden'; 
         previewBox.style.overscrollBehavior = 'contain'; 
 
         if (isDownloadLink(url, link)) {
@@ -75,6 +75,7 @@ document.addEventListener('mouseover', function(e) {
             downloadContainer.appendChild(downloadBtn);
             previewBox.appendChild(downloadContainer);
         } else {
+            // טעינה נקייה של האתר ב-100% גודל (האתר כבר יתאים את עצמו למובייל אוטומטית)
             const iframe = document.createElement('iframe');
             iframe.src = url;
             iframe.style.width = '100%';
