@@ -26,18 +26,21 @@ document.addEventListener('mouseover', function(e) {
             previewBox.remove();
         }
 
+        // 1. יצירת מסגרת החלון החיצונית (בגודל נוח על המסך שלך)
         previewBox = document.createElement('div');
         previewBox.style.position = 'fixed';
         previewBox.style.bottom = '30px';
         previewBox.style.left = '30px'; 
-        previewBox.style.width = '650px';  // הגדלנו מעט לנוחות קריאה
+        previewBox.style.width = '640px';  
         previewBox.style.height = '480px'; 
         previewBox.style.border = '1px solid #ccc';
         previewBox.style.borderRadius = '10px';
         previewBox.style.boxShadow = '0 10px 25px rgba(0,0,0,0.3)';
         previewBox.style.backgroundColor = '#fff';
         previewBox.style.zIndex = '999999';
-        previewBox.style.overflow = 'hidden'; 
+        previewBox.style.overflowX = 'hidden'; // חוסם לחלוטין גלילה לצדדים בחלון הראשי
+        previewBox.style.overflowY = 'auto';   // מאפשר גלילה למטה ולמעלה בחלון הראשי
+        previewBox.style.overscrollBehavior = 'contain'; 
 
         if (isDownloadLink(url, link)) {
             const downloadContainer = document.createElement('div');
@@ -73,12 +76,19 @@ document.addEventListener('mouseover', function(e) {
             downloadContainer.appendChild(downloadBtn);
             previewBox.appendChild(downloadContainer);
         } else {
+            // 2. יצירת האתר הפנימי עם "טריק הזום והרוחב הכפול"
             const iframe = document.createElement('iframe');
             iframe.src = url;
-            iframe.style.width = '100%';
-            iframe.style.height = '100%';
+            
+            // גורם לאתר לחשוב שהוא נפתח במסך גדול (רוחב 1280 וגובה 960)
+            iframe.style.width = '1280px';
+            iframe.style.height = '960px';
             iframe.style.border = 'none';
             iframe.style.backgroundColor = '#ffffff';
+            
+            // מכווץ את כל האתר ב-50% כדי שייכנס בדיוק בתוך ה-640x480 של החלון החיצוני
+            iframe.style.transform = 'scale(0.5)';
+            iframe.style.transformOrigin = 'top left'; 
             
             previewBox.appendChild(iframe);
         }
