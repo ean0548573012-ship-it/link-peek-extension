@@ -1,5 +1,6 @@
 let previewBox = null;
 
+// זיהוי קישורי הורדה למניעת הורדות אוטומטיות
 function isDownloadLink(url, link) {
     if (link.hasAttribute('download')) return true;
     const downloadExtensions = /\.(zip|rar|7z|exe|msi|apk|pdf|doc|docx|xls|xlsx|mp3|mp4|avi|mkv)(\?.*)?$/i;
@@ -11,6 +12,16 @@ function isDownloadLink(url, link) {
     return false;
 }
 
+// מנגנון זיהוי אתרי ענק שחוסמים תצוגה מקדימה ברמת השרת או ה-JS
+function isBlockedSite(url) {
+    const blockedDomains = ['google.com', 'github.com', 'facebook.com', 'twitter.com', 'x.com', 'youtube.com', 'linkedin.com'];
+    try {
+        const urlObj = new URL(url);
+        return blockedDomains.some(domain => urlObj.hostname.includes(domain));
+    } catch(e) {}
+    return false;
+}
+
 document.addEventListener('mouseover', function(e) {
     if (e.target.closest('a') && e.shiftKey) {
         const link = e.target.closest('a');
@@ -18,6 +29,7 @@ document.addEventListener('mouseover', function(e) {
         
         if (!url.startsWith('http')) return;
 
+        // הפניה מוויקיפדיה למכלול
         if (url.includes('wikipedia.org/wiki/')) {
             url = url.replace(/https?:\/\/([a-z0-9\-]+)\.wikipedia\.org\/wiki\//i, 'https://www.hamichlol.org.il/');
         }
@@ -26,7 +38,7 @@ document.addEventListener('mouseover', function(e) {
             previewBox.remove();
         }
 
-        // 1. יצירת מסגרת החלון החיצונית (בגודל נוח על המסך שלך)
+        // יצירת המסגרת החיצונית (עם חסימת גלילה לצדדים ואישור גלילה למטה)
         previewBox = document.createElement('div');
         previewBox.style.position = 'fixed';
         previewBox.style.bottom = '30px';
@@ -38,11 +50,12 @@ document.addEventListener('mouseover', function(e) {
         previewBox.style.boxShadow = '0 10px 25px rgba(0,0,0,0.3)';
         previewBox.style.backgroundColor = '#fff';
         previewBox.style.zIndex = '999999';
-        previewBox.style.overflowX = 'hidden'; // חוסם לחלוטין גלילה לצדדים בחלון הראשי
-        previewBox.style.overflowY = 'auto';   // מאפשר גלילה למטה ולמעלה בחלון הראשי
+        previewBox.style.overflowX = 'hidden'; 
+        previewBox.style.overflowY = 'auto';   
         previewBox.style.overscrollBehavior = 'contain'; 
 
         if (isDownloadLink(url, link)) {
+            // טיפול בקובץ להורדה
             const downloadContainer = document.createElement('div');
             downloadContainer.style.display = 'flex';
             downloadContainer.style.flexDirection = 'column';
@@ -75,18 +88,59 @@ document.addEventListener('mouseover', function(e) {
             downloadContainer.appendChild(infoText);
             downloadContainer.appendChild(downloadBtn);
             previewBox.appendChild(downloadContainer);
+
+        } else if (isBlockedSite(url)) {
+            // טיפול אלגנטי באתרי ענק חסומים
+            const blockedContainer = document.createElement('div');
+            blockedContainer.style.display = 'flex';
+            blockedContainer.style.flexDirection = 'column';
+            blockedContainer.style.alignItems = 'center';
+            blockedContainer.style.justifyContent = 'center';
+            blockedContainer.style.height = '100%';
+            blockedContainer.style.fontFamily = 'Arial, sans-serif';
+            blockedContainer.style.padding = '20px';
+            blockedContainer.style.textAlign = 'center';
+            blockedContainer.style.backgroundColor = '#f8f9fa';
+
+            const iconText = document.createElement('div');
+            iconText.textContent = '🛡️';
+            iconText.style.fontSize = '45px';
+            iconText.style.marginBottom = '15px';
+
+            const infoText = document.createElement('p');
+            infoText.textContent = 'אתרי ענק כגון זה חוסמים תצוגה מקדימה מטעמי אבטחה.';
+            infoText.style.marginBottom = '20px';
+            infoText.style.color = '#333';
+            infoText.style.fontSize = '16px';
+            infoText.dir = 'rtl';
+
+            const openBtn = document.createElement('a');
+            openBtn.href = url;
+            openBtn.target = '_blank';
+            openBtn.textContent = 'פתיחת האתר בכרטיסייה חדשה';
+            openBtn.style.padding = '12px 24px';
+            openBtn.style.backgroundColor = '#333';
+            openBtn.style.color = '#fff';
+            openBtn.style.textDecoration = 'none';
+            openBtn.style.borderRadius = '6px';
+            openBtn.style.fontWeight = 'bold';
+            openBtn.style.fontSize = '16px';
+
+            blockedContainer.appendChild(iconText);
+            blockedContainer.appendChild(infoText);
+            blockedContainer.appendChild(openBtn);
+            previewBox.appendChild(blockedContainer);
+
         } else {
-            // 2. יצירת האתר הפנימי עם "טריק הזום והרוחב הכפול"
+            // טעינת אתר רגיל באמצעות זום להצגה נוחה וחלקה
             const iframe = document.createElement('iframe');
             iframe.src = url;
             
-            // גורם לאתר לחשוב שהוא נפתח במסך גדול (רוחב 1280 וגובה 960)
             iframe.style.width = '1280px';
             iframe.style.height = '960px';
             iframe.style.border = 'none';
             iframe.style.backgroundColor = '#ffffff';
             
-            // מכווץ את כל האתר ב-50% כדי שייכנס בדיוק בתוך ה-640x480 של החלון החיצוני
             iframe.style.transform = 'scale(0.5)';
             iframe.style.transformOrigin = 'top left'; 
             
@@ -97,6 +151,7 @@ document.addEventListener('mouseover', function(e) {
     }
 });
 
+// מנגנוני סגירה של התצוגה המקדימה
 document.addEventListener('mouseout', function(e) {
     if (e.target.closest('a') && previewBox) {
         if (e.shiftKey) return; 
