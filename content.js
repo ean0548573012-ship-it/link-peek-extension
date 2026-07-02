@@ -1,6 +1,5 @@
 let previewBox = null;
 
-// פונקציה שמזהה האם הקישור הוא קובץ להורדה כדי למנוע הורדה אוטומטית
 function isDownloadLink(url, link) {
     if (link.hasAttribute('download')) return true;
     const downloadExtensions = /\.(zip|rar|7z|exe|msi|apk|pdf|doc|docx|xls|xlsx|mp3|mp4|avi|mkv)(\?.*)?$/i;
@@ -12,7 +11,6 @@ function isDownloadLink(url, link) {
     return false;
 }
 
-// מאזין לתנועת העכבר
 document.addEventListener('mouseover', function(e) {
     if (e.target.closest('a') && e.shiftKey) {
         const link = e.target.closest('a');
@@ -20,7 +18,6 @@ document.addEventListener('mouseover', function(e) {
         
         if (!url.startsWith('http')) return;
 
-        // החלפת קישורי ויקיפדיה לאתר המכלול
         if (url.includes('wikipedia.org/wiki/')) {
             url = url.replace(/https?:\/\/([a-z0-9\-]+)\.wikipedia\.org\/wiki\//i, 'https://www.hamichlol.org.il/');
         }
@@ -29,22 +26,19 @@ document.addEventListener('mouseover', function(e) {
             previewBox.remove();
         }
 
-        // יצירת חלונית התצוגה המקדימה 
         previewBox = document.createElement('div');
         previewBox.style.position = 'fixed';
         previewBox.style.bottom = '30px';
         previewBox.style.left = '30px'; 
-        previewBox.style.width = '600px';
-        previewBox.style.height = '450px';
+        previewBox.style.width = '650px';  // הגדלנו מעט לנוחות קריאה
+        previewBox.style.height = '480px'; 
         previewBox.style.border = '1px solid #ccc';
         previewBox.style.borderRadius = '10px';
         previewBox.style.boxShadow = '0 10px 25px rgba(0,0,0,0.3)';
         previewBox.style.backgroundColor = '#fff';
         previewBox.style.zIndex = '999999';
-        previewBox.style.overflow = 'auto'; 
-        previewBox.style.overscrollBehavior = 'contain'; 
+        previewBox.style.overflow = 'hidden'; 
 
-        // חסימת הורדה אוטומטית והצגת כפתור במקום
         if (isDownloadLink(url, link)) {
             const downloadContainer = document.createElement('div');
             downloadContainer.style.display = 'flex';
@@ -86,9 +80,6 @@ document.addEventListener('mouseover', function(e) {
             iframe.style.border = 'none';
             iframe.style.backgroundColor = '#ffffff';
             
-            // --- תוספת קריטית נגד אתרים "שובבים" שמנסים לשבור את החלון ---
-            iframe.sandbox = 'allow-scripts allow-same-origin allow-forms allow-popups';
-            
             previewBox.appendChild(iframe);
         }
 
@@ -96,7 +87,6 @@ document.addEventListener('mouseover', function(e) {
     }
 });
 
-// מאזין ליציאת העכבר מהקישור כדי להעלים את החלונית
 document.addEventListener('mouseout', function(e) {
     if (e.target.closest('a') && previewBox) {
         if (e.shiftKey) return; 
@@ -105,7 +95,6 @@ document.addEventListener('mouseout', function(e) {
     }
 });
 
-// סגירת החלונית כשעוזבים את מקש ה-Shift
 document.addEventListener('keyup', function(e) {
     if (e.key === 'Shift' && previewBox) {
         previewBox.remove();
@@ -113,7 +102,6 @@ document.addEventListener('keyup', function(e) {
     }
 });
 
-// סגירת החלונית בקליק בחוץ
 document.addEventListener('mousedown', function(e) {
     if (previewBox && !previewBox.contains(e.target)) {
         previewBox.remove();
