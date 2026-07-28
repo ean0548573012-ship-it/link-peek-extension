@@ -1,7 +1,8 @@
 {
   "manifest_version": 3,
   "name": "תצוגה מקדימה לקישורים - Link Peek",
-  "version": "2.0",
+  "version": "2.1",
+  "description": "החזק את מקש Shift ורחף עם העכבר מעל קישורים כדי לראות תצוגה מקדימה שלהם.",
   "permissions": [
     "declarativeNetRequest"
   ],
@@ -20,6 +21,10 @@
   "content_scripts": [
     {
       "matches": ["<all_urls>"],
+      "exclude_matches": [
+        "*://mail.google.com/*",
+        "*://chat.google.com/*"
+      ],
       "js": ["content.js"]
     }
   ]
