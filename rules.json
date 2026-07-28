@@ -20,7 +20,9 @@
     },
     "condition": {
       "urlFilter": "*",
-      "resourceTypes": ["sub_frame"]
+      "resourceTypes": ["sub_frame"],
+      "excludedInitiatorDomains": ["mail.google.com", "chat.google.com"],
+      "excludedRequestDomains": ["mail.google.com", "chat.google.com"]
     }
   }
 ]
